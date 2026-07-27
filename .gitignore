@@ -1,0 +1,14 @@
+# ── Python virtual environment ────────────────────────────────────────────────
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# ── Local environment — contains secrets, NEVER commit this ──────────────────
+.env
+
+# ── IDE / OS ──────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.DS_Store
+Thumbs.db

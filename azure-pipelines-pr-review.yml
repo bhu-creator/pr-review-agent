@@ -1,0 +1,46 @@
+trigger: none   # Only trigger via Service Hook webhook — never directly
+pr:     none    # PR trigger disabled — service hook handles this org-wide
+
+pool:
+  vmImage: ubuntu-latest
+
+# ── These are passed by the Service Hook via the ADO Pipeline REST API ────────
+parameters:
+  - name: ado_org_url
+    displayName: "Azure DevOps Org URL"
+    type: string
+    default: ""
+  - name: ado_project
+    displayName: "Project Name"
+    type: string
+    default: ""
+  - name: ado_repo_name
+    displayName: "Repository Name"
+    type: string
+    default: ""
+  - name: pr_id
+    displayName: "Pull Request ID"
+    type: string
+    default: ""
+
+variables:
+  - group: pr-review-secrets   # Contains GEMINI_API_KEY
+
+steps:
+  - task: UsePythonVersion@0
+    displayName: "Setup Python 3.11"
+    inputs:
+      versionSpec: "3.11"
+
+  - script: pip install -r scripts/requirements.txt
+    displayName: "Install Dependencies"
+
+  - script: python scripts/pr_review_agent.py
+    displayName: "Run AI PR Review Agent"
+    env:
+      SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+      ADO_ORG_URL:        ${{ parameters.ado_org_url }}
+      ADO_PROJECT:        ${{ parameters.ado_project }}
+      ADO_REPO_NAME:      ${{ parameters.ado_repo_name }}
+      ADO_PR_ID:          ${{ parameters.pr_id }}
+      GEMINI_API_KEY:     $(GEMINI_API_KEY)
